@@ -26,14 +26,18 @@ Add logging to the service that you think will give us enough information to kno
 
 ## Task 3
 
-The Database is really slow (and you cannot change the class).
-Find a way to speed up the endpoints without modifying the `SlowDatabase.cs`
+You team has the freedom to choose a new database. Make the necessary changes to adapt to this new connection. (You can choose any tecnology, e.g., Mongodb, Redis, Cassandra, CouchDB, MySQL, etc...)
 
 ## Task 4
 
-The Project does not have any unit testing, add tests that guarantee that everything works as expected.
+While your new tecnology isn't Production Ready the  SlowDatabase is really slow (and you cannot change the class).
+Find a way to speed up the endpoints without modifying the `SlowDatabase.cs`.
 
 ## Task 5
+
+The Project does not have any unit testing, add tests that guarantee that everything works as expected.
+
+## Task 6
 
 We want to deprecate the `GET /api/v1/Content` which always returns all the contents.
 Create a new endpoint that deprecates this and implements a way to filter the contents by Title and/or Genre.

@@ -1,20 +1,27 @@
-
 using System.Collections.Concurrent;
 
 namespace NOS.Engineering.Challenge.Database;
 
-
+/**
+*
+*   Do not change this file.
+*
+*/
 public class SlowDatabase<TOut, TIn>: IDatabase<TOut, TIn>
 {
-
     private readonly ConcurrentDictionary<Guid, TOut?> _database;
-
     private readonly IMapper<TOut?, TIn> _mapper;
 
-    public SlowDatabase(IMapper<TOut?, TIn> mapper)
+    public SlowDatabase(IMapper<TOut?, TIn> mapper, IMockData<TOut> mockData)
     {
         _mapper = mapper;
         _database = new ConcurrentDictionary<Guid, TOut?>();
+
+        var mocks = mockData.GenerateMocks();
+        foreach (var mock in mocks)
+        {
+            _database.TryAdd(mock.Key, mock.Value);
+        }
     }
 
     public Task<TOut?> Create(TIn item)
@@ -63,4 +70,5 @@ public class SlowDatabase<TOut, TIn>: IDatabase<TOut, TIn>
 
         return Task.FromResult(_database.TryRemove(id, out _) ? id : Guid.Empty);
     }
+    
 }
