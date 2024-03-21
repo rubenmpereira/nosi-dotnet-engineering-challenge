@@ -21,7 +21,7 @@ public class SlowDatabase<TOut, TIn>: IDatabase<TOut, TIn>
     {
         //There is no need to worry about id clashes for this exercise.
         var id = Guid.NewGuid();
-        Thread.Sleep(500);
+        Thread.Sleep(1000);
         var createdItem = _mapper.Map(id, item);
         if (!_database.TryAdd(id, createdItem))
         {
@@ -32,13 +32,13 @@ public class SlowDatabase<TOut, TIn>: IDatabase<TOut, TIn>
 
     public Task<TOut?> Read(Guid id)
     {
-        Thread.Sleep(1000);
+        Thread.Sleep(3000);
         return Task.FromResult(_database.TryGetValue(id, out var item) ? item : default);
     }
 
     public Task<IEnumerable<TOut?>> ReadAll()
     {
-        Thread.Sleep(2000);
+        Thread.Sleep(5000);
         return Task.FromResult(_database.Values.AsEnumerable());
     }
 
