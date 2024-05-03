@@ -17,6 +17,20 @@ public class ContentsManager : IContentsManager
         return _database.ReadAll();
     }
 
+    public Task<IEnumerable<Content?>> GetManyContentsFilter(string? title, string? genre)
+    {
+        var result = _database.ReadAll();
+
+        if (result.Result is null)
+            return result;
+
+        var contents = result.Result
+            .Where(x => x != null && x.Title.Contains(title ?? ""))
+            .Where(x => x != null && (string.IsNullOrEmpty(genre) || x.GenreList.Contains(genre)));
+
+        return Task.FromResult(contents);
+    }
+
     public Task<Content?> CreateContent(ContentDto content)
     {
         return _database.Create(content);
@@ -35,5 +49,33 @@ public class ContentsManager : IContentsManager
     public Task<Guid> DeleteContent(Guid id)
     {
         return _database.Delete(id);
+    }
+
+    public Task<Content?> AddGenres(Guid id, IEnumerable<string> genres)
+    {
+        var content = _database.Read(id);
+
+        if (content.Result is null)
+            return content;
+
+        List<string> updatedGenres = [.. content.Result.GenreList ?? []];
+
+        updatedGenres.AddRange(genres);
+
+        return _database.Update(id, new ContentDto(updatedGenres.Distinct()));
+    }
+
+    public Task<Content?> RemoveGenres(Guid id, IEnumerable<string> genres)
+    {
+        var content = _database.Read(id);
+
+        if (content.Result is null)
+            return content;
+
+        List<string> updatedGenres = [.. content.Result.GenreList ?? []];
+
+        updatedGenres.RemoveAll(x => genres.Contains(x));
+
+        return _database.Update(id, new ContentDto(updatedGenres));
     }
 }

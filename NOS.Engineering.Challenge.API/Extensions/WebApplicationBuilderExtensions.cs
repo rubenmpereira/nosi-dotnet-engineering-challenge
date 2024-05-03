@@ -4,6 +4,10 @@ using Microsoft.OpenApi.Models;
 using NOS.Engineering.Challenge.Database;
 using NOS.Engineering.Challenge.Managers;
 using NOS.Engineering.Challenge.Models;
+using Microsoft.EntityFrameworkCore;
+using NOS.Engineering.Challenge.API.Controllers;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace NOS.Engineering.Challenge.API.Extensions;
 
@@ -27,9 +31,14 @@ public static class WebApplicationBuilderExtensions
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Nos Challenge Api", Version = "v1" });
         });
 
+        var connectionString = webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+        serviceCollection.AddResponseCaching();
+
         serviceCollection
-            .RegisterSlowDatabase()
-            .RegisterContentsManager();
+            //.RegisterSlowDatabase()
+            .RegisterContentsManager()
+            .RegisterEntityFrameworkDatabase(connectionString);
         return webApplicationBuilder;
     }
 
@@ -41,7 +50,16 @@ public static class WebApplicationBuilderExtensions
 
         return services;
     }
-    
+
+    private static IServiceCollection RegisterEntityFrameworkDatabase(this IServiceCollection services,string connectionString)
+    {
+        services.AddSingleton<IDatabase<Content, ContentDto>, EntityFrameworkDatabase<Content, ContentDto>>();
+        services.AddSingleton<IMapper<Content, ContentDto>, ContentMapper>();
+        services.AddDbContextFactory<ContentDbContext>(options => options.UseSqlServer(connectionString));
+
+        return services;
+    }
+
     private static IServiceCollection RegisterContentsManager(this IServiceCollection services)
     {
         services.AddSingleton<IContentsManager, ContentsManager>();
